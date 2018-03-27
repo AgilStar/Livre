@@ -1,9 +1,13 @@
 package launch;
 
 import java.io.File;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 import org.apache.catalina.WebResourceRoot;
 import org.apache.catalina.WebResourceSet;
@@ -12,8 +16,6 @@ import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.webresources.DirResourceSet;
 import org.apache.catalina.webresources.EmptyResourceSet;
 import org.apache.catalina.webresources.StandardRoot;
-import org.apache.tomcat.util.scan.Constants;
-import org.apache.tomcat.util.scan.StandardJarScanFilter;
 
 public class Main {
 
@@ -33,6 +35,16 @@ public class Main {
             throw new RuntimeException(ex);
         }
     }
+    
+private static Connection getConnection() throws URISyntaxException, SQLException {
+    URI dbUri = new URI(System.getenv("postgres://dbigmprzkodqou:13bb3faceec743f7a7e1a73c158d1d1877813879ff9c45512bf"
+            + "bf1193f0601d3@ec2-54-195-246-59.eu-west-1.compute.amazonaws.com:5432/d4kkdtvqa8mjve"));
+    String username = dbUri.getUserInfo().split(":")[0];
+    String password = dbUri.getUserInfo().split(":")[1];
+    String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
+
+    return DriverManager.getConnection(dbUrl, username, password);
+}
 
     public static void main(String[] args) throws Exception {
 
@@ -77,5 +89,6 @@ public class Main {
 
         tomcat.start();
         tomcat.getServer().await();
+        
     }
 }
